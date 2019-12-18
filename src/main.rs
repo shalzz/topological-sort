@@ -1,72 +1,50 @@
+use std::collections::HashMap;
 use std::collections::HashSet;
 
 #[derive(Debug)]
-struct Node {
-    name: String,
-    dep: Vec<Node>,
+struct Graph {
+    pub nodes: Vec<u32>,
+    pub edges: HashMap<u32, Vec<u32>>,
 }
 
-impl Node {
-    fn new(name: String, dep: Vec<Node>) -> Node {
-        Node { name, dep }
+impl Graph {
+    fn sort(&self, node: u32, visited: &mut HashSet<u32>, result: &mut Vec<u32>) {
+        visited.insert(node);
+        result.push(node);
+
+        for dep in &self.edges[&node] {
+            if !visited.contains(dep) {
+                self.sort(*dep, visited, result)
+            }
+        }
     }
 }
 
 fn main() {
-    let mut graph = Vec::default();
-    graph.push(Node::new(
-        "5".to_string(),
-        vec![Node::new(
-            "11".to_string(),
-            vec![
-                Node::new("2".to_string(), vec![]),
-                Node::new("9".to_string(), vec![]),
-                Node::new("10".to_string(), vec![]),
-            ],
-        )],
-    ));
-    graph.push(Node::new(
-        "7".to_string(),
-        vec![
-            Node::new(
-                "11".to_string(),
-                vec![
-                    Node::new("2".to_string(), vec![]),
-                    Node::new("9".to_string(), vec![]),
-                    Node::new("10".to_string(), vec![]),
-                ],
-            ),
-            Node::new("8".to_string(), vec![Node::new("9".to_string(), vec![])]),
-        ],
-    ));
-    graph.push(Node::new(
-        "3".to_string(),
-        vec![
-            Node::new("10".to_string(), vec![]),
-            Node::new("8".to_string(), vec![Node::new("9".to_string(), vec![])]),
-        ],
-    ));
+    let nodes = vec![5, 7, 3, 8, 11, 2, 9, 10];
+    let mut edges = HashMap::new();
+    edges.insert(5, vec![11]);
+    edges.insert(7, vec![11, 8]);
+    edges.insert(3, vec![10, 8]);
+    edges.insert(11, vec![2, 9, 10]);
+    edges.insert(8, vec![9]);
+    edges.insert(2, vec![]);
+    edges.insert(9, vec![]);
+    edges.insert(10, vec![]);
 
-    let node_names = sort(graph);
+    let mut visited = HashSet::new();
+    let mut result = Vec::with_capacity(nodes.len());
+    let graph = Graph { nodes, edges };
 
-    for name in node_names {
-        print!("{}, ", name);
-    }
-}
-
-fn sort(graph: Vec<Node>) -> HashSet<String> {
-    let mut result: HashSet<String> = HashSet::new();
-    for node in graph {
-        if node.dep.len() == 0 {
-            result.insert(node.name);
-        } else {
-            for sub_node in node.dep {
-                for name in sort(sub_node.dep) {
-                    result.insert(name);
-                }
-                result.insert(sub_node.name);
-            }
+    // Make sure we traverse all nodes;
+    for node in &graph.nodes {
+        // don't re-visit a node.
+        if !visited.contains(node) {
+            graph.sort(*node, &mut visited, &mut result);
         }
     }
-    result
+
+    for name in result {
+        print!("{}, ", name);
+    }
 }
