@@ -10,13 +10,14 @@ struct Graph {
 impl Graph {
     fn sort(&self, node: u32, visited: &mut HashSet<u32>, result: &mut Vec<u32>) {
         visited.insert(node);
-        result.push(node);
 
         for dep in &self.edges[&node] {
             if !visited.contains(dep) {
                 self.sort(*dep, visited, result)
             }
         }
+        // if we exit from the loop it means we have already visited all deps.
+        result.push(node);
     }
 }
 
@@ -44,7 +45,7 @@ fn main() {
         }
     }
 
-    for name in result {
+    for name in result.iter().rev() {
         print!("{}, ", name);
     }
 }
