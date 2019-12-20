@@ -20,6 +20,10 @@ struct Graph<'a> {
 }
 
 impl<'a> Graph<'a> {
+    fn new(nodes: Vec<&'a Node>, edges: HashMap<&'a Node, Vec<&'a Node>>) -> Graph<'a> {
+        Graph { nodes, edges }
+    }
+
     fn sort(&self) -> Vec<&Node> {
         let mut visited = HashSet::new();
         let mut result = Vec::with_capacity(self.nodes.len());
@@ -79,7 +83,7 @@ fn main() {
     edges.insert(&_3, vec![&_10, &_8]);
     edges.insert(&_11, vec![&_2, &_9, &_10]);
     edges.insert(&_8, vec![&_9]);
-    let graph = Graph { nodes, edges };
+    let graph = Graph::new(nodes, edges);
 
     let result = graph.sort();
 
@@ -93,5 +97,17 @@ mod tests {
     use super::*;
 
     #[test]
-    fn it_sorts_correctly() {}
+    fn it_sorts_correctly() {
+        let a = Node::new(1);
+        let b = Node::new(2);
+        let nodes = vec![&a, &b];
+        let mut edges = HashMap::new();
+        edges.insert(&a, vec![&b]);
+        let graph = Graph::new(nodes, edges);
+        let mut res = graph.sort();
+        res.reverse();
+
+        assert_eq!(res[0].id, 1);
+        assert_eq!(res[1].id, 2);
+    }
 }
