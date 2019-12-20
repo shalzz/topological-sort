@@ -1,15 +1,35 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::hash::Hash;
+use std::hash::Hasher;
 
-#[derive(Debug, Hash, Eq, PartialEq)]
+#[derive(Debug, Eq)]
 struct Node {
     id: u32,
-    //    visited: bool, // should not be used to compare.
+
+    // Meta Data
+    // should not be used to compare or hash.
+    name: String,
+}
+
+impl PartialEq for Node {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+
+impl Hash for Node {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.id.hash(state);
+    }
 }
 
 impl Node {
     fn new(id: u32) -> Node {
-        Node { id }
+        Node {
+            id,
+            name: id.to_string(),
+        }
     }
 }
 
