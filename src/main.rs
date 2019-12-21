@@ -117,7 +117,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn it_sorts_correctly() {
+    fn it_sorts_correctly_1() {
         let a = Node::new(1);
         let b = Node::new(2);
         let nodes = vec![&a, &b];
@@ -129,5 +129,23 @@ mod tests {
 
         assert_eq!(res[0].id, 1);
         assert_eq!(res[1].id, 2);
+    }
+
+    #[test]
+    fn it_sorts_correctly_2() {
+        let a = Node::new(1);
+        let b = Node::new(2);
+        let c = Node::new(3);
+        let nodes = vec![&a, &b, &c];
+        let mut edges = HashMap::new();
+        edges.insert(&a, vec![&b]);
+        edges.insert(&b, vec![&c]);
+        let graph = Graph::new(nodes, edges);
+        let mut res = graph.sort();
+        res.reverse();
+
+        assert_eq!(res[0].id, 1);
+        assert_eq!(res[1].id, 2);
+        assert_eq!(res[2].id, 3);
     }
 }
