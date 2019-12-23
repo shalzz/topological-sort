@@ -73,6 +73,11 @@ impl<'a> Graph<'a> {
                     }
 
                     for dep in &self.edges[&cur_node] {
+                        // If a node's already on the stack then it's a cyclic graph
+                        if stack.iter().any(|(node, _)| node == dep) {
+                            panic!("Should not be a cyclic graph, cycle at node: {}", dep.id);
+                        }
+
                         if !visited.contains(dep) {
                             stack.push((*dep, false));
                         }
@@ -140,6 +145,26 @@ mod tests {
         let mut edges = HashMap::new();
         edges.insert(&a, vec![&b]);
         edges.insert(&b, vec![&c]);
+        let graph = Graph::new(nodes, edges);
+        let mut res = graph.sort();
+        res.reverse();
+
+        assert_eq!(res[0].id, 1);
+        assert_eq!(res[1].id, 2);
+        assert_eq!(res[2].id, 3);
+    }
+
+    #[test]
+    #[should_panic(expected = "Should not be a cyclic graph")]
+    fn detects_cycle() {
+        let a = Node::new(1);
+        let b = Node::new(2);
+        let c = Node::new(3);
+        let nodes = vec![&a, &b, &c];
+        let mut edges = HashMap::new();
+        edges.insert(&a, vec![&b]);
+        edges.insert(&b, vec![&c]);
+        edges.insert(&c, vec![&a]);
         let graph = Graph::new(nodes, edges);
         let mut res = graph.sort();
         res.reverse();
